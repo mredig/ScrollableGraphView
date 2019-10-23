@@ -181,7 +181,7 @@ open class Plot {
         
         var index = 0
         for activatedPointIndex in activatedPoints {
-            
+			guard activatedPointIndex < graphPoints.count else { continue }
             let dataPosition = index
             let value = data[dataPosition]
             
