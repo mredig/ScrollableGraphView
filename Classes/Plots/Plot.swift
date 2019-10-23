@@ -228,6 +228,7 @@ open class Plot {
     }
     
     internal func graphPoint(forIndex index: Int) -> GraphPoint {
+		guard index < graphPoints.count else { return GraphPoint(position: .zero)}
         return graphPoints[index]
     }
 }
