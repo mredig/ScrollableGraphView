@@ -181,7 +181,7 @@ open class Plot {
         
         var index = 0
         for activatedPointIndex in activatedPoints {
-			guard activatedPointIndex < graphPoints.count else { continue }
+            guard activatedPointIndex < graphPoints.count else { continue }
             let dataPosition = index
             let value = data[dataPosition]
             
@@ -228,7 +228,7 @@ open class Plot {
     }
     
     internal func graphPoint(forIndex index: Int) -> GraphPoint {
-		guard index < graphPoints.count else { return GraphPoint(position: .zero)}
+        guard index < graphPoints.count else { return GraphPoint(position: .zero) }
         return graphPoints[index]
     }
 }

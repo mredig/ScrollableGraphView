@@ -115,7 +115,7 @@ import UIKit
         }
     }
     
-    private var range: (min: Double, max: Double) = (0, 100) {
+    private var range: (min: Double, max: Double) = (0, 0.0001) {
         didSet {
             if(oldValue.min != range.min || oldValue.max != range.max) {
                 if !isCurrentlySettingUp { rangeDidChange() }
