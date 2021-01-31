@@ -54,6 +54,7 @@ import UIKit
     
     /// Whether or not the y-axis' range should adapt to the points that are visible on screen. This means if there are only 5 points visible on screen at any given time, the maximum on the y-axis will be the maximum of those 5 points. This is updated automatically as the user scrolls along the graph.
     @IBInspectable open var shouldAdaptRange: Bool = false
+    @IBInspectable open var shouldAdaptRangeUp: Bool = false
     /// If shouldAdaptRange is set to true then this specifies whether or not the points on the graph should animate to their new positions. Default is set to true.
     @IBInspectable open var shouldAnimateOnAdapt: Bool = true
     
@@ -114,7 +115,7 @@ import UIKit
         }
     }
     
-    private var range: (min: Double, max: Double) = (0, 100) {
+    private var range: (min: Double, max: Double) = (0, 0.0001) {
         didSet {
             if(oldValue.min != range.min || oldValue.max != range.max) {
                 if !isCurrentlySettingUp { rangeDidChange() }
@@ -231,6 +232,11 @@ import UIKit
             // Need to calculate the range across all plots to get the min and max for all plots.
             if (shouldAdaptRange) { // This overwrites anything specified by rangeMin and rangeMax
                 let range = calculateRange(forActivePointsInterval: initialActivePointsInterval)
+                self.range = range
+            }
+            else if (shouldAdaptRangeUp) {
+                var range = calculateRange(forActivePointsInterval: initialActivePointsInterval)
+                range.max = Swift.max(self.range.max, range.max)
                 self.range = range
             }
             else {
@@ -375,6 +381,14 @@ import UIKit
                     let newRange = calculateRange(forActivePointsInterval: newActivePointsInterval)
                     self.range = newRange
                 #endif
+            }
+            else if (shouldAdaptRangeUp) {
+                #if !TARGET_INTERFACE_BUILDER
+                    var range = calculateRange(forActivePointsInterval: newActivePointsInterval)
+                    range.max = Swift.max(self.range.max, range.max)
+                    self.range = range
+                #endif
+
             }
         }
     }
@@ -822,7 +836,7 @@ import UIKit
             
             // self.range.min is the current ranges minimum that has been detected
             // self.rangeMin is the minimum that should be used as specified by the user
-            let rangeMin = (shouldAdaptRange) ? self.range.min : self.rangeMin
+            let rangeMin = (shouldAdaptRange || shouldAdaptRangeUp) ? self.range.min : self.rangeMin
             let position = calculatePosition(atIndex: point, value: rangeMin)
             
             label.frame = CGRect(origin: CGPoint(x: position.x - label.frame.width / 2, y: position.y + ref.dataPointLabelTopMargin), size: label.frame.size)
@@ -857,7 +871,7 @@ import UIKit
         
         for label in labelPool.activeLabels {
             
-            let rangeMin = (shouldAdaptRange) ? self.range.min : self.rangeMin
+            let rangeMin = (shouldAdaptRange || shouldAdaptRangeUp) ? self.range.min : self.rangeMin
             let position = calculatePosition(atIndex: 0, value: rangeMin)
             
             label.frame.origin.y = position.y + ref.dataPointLabelTopMargin
@@ -885,8 +899,8 @@ import UIKit
         
         // self.range.min/max is the current ranges min/max that has been detected
         // self.rangeMin/Max is the min/max that should be used as specified by the user
-        let rangeMax = (shouldAdaptRange) ? self.range.max : self.rangeMax
-        let rangeMin = (shouldAdaptRange) ? self.range.min : self.rangeMin
+        let rangeMax = (shouldAdaptRange || shouldAdaptRangeUp) ? self.range.max : self.rangeMax
+        let rangeMin = (shouldAdaptRange || shouldAdaptRangeUp) ? self.range.min : self.rangeMin
         
         //                                                     y = the y co-ordinate in the view for the value in the graph
         //                                                     value = the value on the graph for which we want to know its
